@@ -49,10 +49,9 @@ export default function AddMedicineScreen() {
             Type in the medicine name, quantity, dosage and dates yourself.
           </Text>
           <Button
-            label="Coming soon"
-            variant="secondary"
-            disabled
-            onPress={() => {}}
+            label="Enter Manually"
+            variant="primary"
+            onPress={() => router.push('/medicines/manual')}
             style={styles.optionAction}
           />
         </Card>

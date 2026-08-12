@@ -21,7 +21,9 @@ export default function RootLayout() {
         }}
       >
         <Stack.Screen name="index" options={{ title: 'Medicine Tracker' }} />
+        <Stack.Screen name="today" options={{ title: "Today's Doses" }} />
         <Stack.Screen name="medicines/add" options={{ title: 'Add Medicine' }} />
+        <Stack.Screen name="medicines/manual" options={{ title: 'Enter Manually' }} />
         <Stack.Screen name="medicines/[id]" options={{ title: 'Medicine Details' }} />
       </Stack>
     </SafeAreaProvider>

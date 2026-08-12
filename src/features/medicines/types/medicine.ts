@@ -41,6 +41,9 @@ export interface DosageSchedule {
   evening?: Dose;
 }
 
+/** The slot keys of `DosageSchedule`, named once so nothing re-derives them. */
+export type DoseSlotKey = keyof DosageSchedule;
+
 export type NotificationChannel = 'push' | 'whatsapp' | 'sms' | 'email';
 
 export interface NotificationRule {

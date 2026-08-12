@@ -38,17 +38,19 @@ src/
 │   ├── +not-found.tsx
 │   ├── medicines/
 │   │   ├── add.tsx       # Add medicine (scan / manual)
+│   │   ├── manual.tsx    # Manual entry + edit form
 │   │   └── [id].tsx      # Medicine details
-│   └── scanner/          # (Phase 1D)
+│   ├── today.tsx         # Today's dose checklist (Phase 1D)
+│   └── scanner/          # (not yet built)
 │
 ├── features/
 │   ├── medicines/        # components, screens, hooks, services, store, types, utils
-│   ├── scanner/          # (Phase 1D)
+│   ├── scanner/          # (not yet built)
 │   ├── notifications/    # (Phase 1E)
 │   └── settings/
 │
-├── components/           # Shared UI: Button, Card, Screen, EmptyState
-├── database/             # (Phase 1B) SQLite + repositories
+├── components/           # Shared UI: Button, Card, Input, Screen, EmptyState
+├── database/             # SQLite client + schema
 ├── services/
 ├── utils/
 ├── constants/            # Design tokens
@@ -78,9 +80,10 @@ functions, never in components.
 ## Roadmap
 
 - **1A — Foundation** ✅ project, router, layout, screens, structure, tooling
-- **1B — Medicine management**: SQLite, repository, store, CRUD
-- **1C — Dosage engine**: consumption, finish date, remaining quantity, status
-- **1D — Scanner**: camera, OCR abstraction, extraction, confirmation
+- **1B — Medicine management** ✅ SQLite, repository, store, CRUD
+- **1C — Dosage engine** ✅ consumption, finish date, remaining quantity, status
+- **1D — Dosage consumption** ✅ today's checklist, confirm/undo, missed-dose flag
+- **Scanner**: camera, OCR abstraction, extraction, confirmation
 - **1E — Notifications**: permissions, finish/expiry reminders, rescheduling
 - **1F — Polish**: states, accessibility, icon, splash, production builds
 - **Phase 2**: backend, auth, cloud sync, WhatsApp
