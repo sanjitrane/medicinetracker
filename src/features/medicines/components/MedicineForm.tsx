@@ -12,24 +12,36 @@ import {
   emptyMedicineFormValues,
   medicineFormSchema,
   type MedicineFormValues,
+  type UncertainFormField,
 } from '../utils/medicineForm';
+
+const VERIFY_WARNING = "⚠ Please verify — the scan wasn't fully confident here";
 
 export interface MedicineFormProps {
   initialValues?: MedicineFormValues;
+  /** Fields pre-filled from a scan the OCR provider had low confidence in (architecture.md #17). */
+  uncertainFields?: UncertainFormField[];
   submitLabel: string;
   onSubmit: (values: MedicineFormValues) => Promise<void>;
   onCancel: () => void;
 }
 
 /**
- * Shared by manual entry and edit (architecture.md #18): both converge on the
- * same medicine creation flow and data model, so there is exactly one form.
+ * Shared by manual entry, edit, and scan confirmation (architecture.md #18):
+ * all three converge on the same medicine creation flow and data model, so
+ * there is exactly one form.
  *
  * Dosage here is deliberately just quantity-per-slot. Fraction ("half
  * tablet") and meal timing exist on the `Dose` type but their UI lands in
  * Phase 1C alongside the calculation engine that actually uses them.
  */
-export function MedicineForm({ initialValues, submitLabel, onSubmit, onCancel }: MedicineFormProps) {
+export function MedicineForm({
+  initialValues,
+  uncertainFields = [],
+  submitLabel,
+  onSubmit,
+  onCancel,
+}: MedicineFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -70,6 +82,7 @@ export function MedicineForm({ initialValues, submitLabel, onSubmit, onCancel }:
               onChangeText={field.onChange}
               onBlur={field.onBlur}
               error={errors.name?.message}
+              warning={uncertainFields.includes('name') ? VERIFY_WARNING : undefined}
             />
           )}
         />
@@ -237,6 +250,7 @@ export function MedicineForm({ initialValues, submitLabel, onSubmit, onCancel }:
               onChangeText={field.onChange}
               onBlur={field.onBlur}
               error={errors.manufacturingDate?.message}
+              warning={uncertainFields.includes('manufacturingDate') ? VERIFY_WARNING : undefined}
             />
           )}
         />
@@ -251,6 +265,7 @@ export function MedicineForm({ initialValues, submitLabel, onSubmit, onCancel }:
               onChangeText={field.onChange}
               onBlur={field.onBlur}
               error={errors.expiryDate?.message}
+              warning={uncertainFields.includes('expiryDate') ? VERIFY_WARNING : undefined}
             />
           )}
         />

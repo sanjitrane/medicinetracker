@@ -11,9 +11,6 @@ import { colors, spacing, typography } from '@/constants/theme';
  *
  * Both paths (scan and manual) converge on the same creation flow and the same
  * data model, so scanning is only ever a way to pre-fill the form.
- *
- * Phase 1A renders the choice; the steps themselves land in 1B (manual entry)
- * and 1D (scanner).
  */
 export default function AddMedicineScreen() {
   const router = useRouter();
@@ -34,10 +31,9 @@ export default function AddMedicineScreen() {
             Use the camera to read the name and dates from the package.
           </Text>
           <Button
-            label="Coming soon"
-            variant="secondary"
-            disabled
-            onPress={() => {}}
+            label="Scan Medicine"
+            variant="primary"
+            onPress={() => router.push('/scanner')}
             style={styles.optionAction}
           />
         </Card>

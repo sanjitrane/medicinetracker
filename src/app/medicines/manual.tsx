@@ -10,16 +10,21 @@ import {
   formValuesToMedicineInput,
   medicineToFormValues,
   type MedicineFormValues,
+  type UncertainFormField,
 } from '@/features/medicines/utils/medicineForm';
+import type { MedicineScanResult } from '@/features/scanner/types/scan';
+import { scanResultToFormValues } from '@/features/scanner/utils/scanResultToFormValues';
 
 /**
- * Manual medicine entry and edit, in one screen (architecture.md #18):
- * scanning and manual entry converge on the same creation flow and data
- * model, so there is only ever one form to maintain.
+ * Manual medicine entry, edit, and scan confirmation, all in one screen
+ * (architecture.md #18): all three converge on the same creation flow and
+ * data model, so there is only ever one form to maintain. A scan
+ * (`?scan=<json>`) only ever pre-fills this form — it never saves on its own
+ * (architecture.md #14).
  */
 export default function ManualEntryScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, scan } = useLocalSearchParams<{ id?: string; scan?: string }>();
   const isEditing = Boolean(id);
 
   const hasLoaded = useMedicineStore((state) => state.hasLoaded);
@@ -36,10 +41,28 @@ export default function ManualEntryScreen() {
     }
   }, [hasLoaded, load]);
 
-  const initialValues = useMemo<MedicineFormValues | undefined>(
-    () => (existing ? medicineToFormValues(existing) : undefined),
-    [existing]
-  );
+  const scanResult = useMemo<MedicineScanResult | undefined>(() => {
+    if (!scan) return undefined;
+    try {
+      return JSON.parse(scan) as MedicineScanResult;
+    } catch {
+      return undefined;
+    }
+  }, [scan]);
+
+  const { initialValues, uncertainFields } = useMemo<{
+    initialValues: MedicineFormValues | undefined;
+    uncertainFields: UncertainFormField[];
+  }>(() => {
+    if (existing) {
+      return { initialValues: medicineToFormValues(existing), uncertainFields: [] };
+    }
+    if (scanResult) {
+      const scanned = scanResultToFormValues(scanResult);
+      return { initialValues: scanned.values, uncertainFields: scanned.uncertainFields };
+    }
+    return { initialValues: undefined, uncertainFields: [] };
+  }, [existing, scanResult]);
 
   if (isEditing && !hasLoaded) {
     return (
@@ -68,8 +91,9 @@ export default function ManualEntryScreen() {
     <Screen scrollable>
       <Text style={styles.title}>{isEditing ? 'Edit Medicine' : 'Medicine Information'}</Text>
       <MedicineForm
-        key={id ?? 'new'}
+        key={id ?? scan ?? 'new'}
         initialValues={initialValues}
+        uncertainFields={uncertainFields}
         submitLabel={isEditing ? 'Save Changes' : 'Save Medicine'}
         onSubmit={handleSubmit}
         onCancel={() => router.back()}

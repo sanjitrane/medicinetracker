@@ -12,10 +12,15 @@ Built with Expo (SDK 57), React Native, TypeScript and Expo Router.
 
 ```bash
 npm install
+cp .env.example .env   # then fill in EXPO_PUBLIC_OPENAI_API_KEY for the scanner
 npm start          # Metro; press "i" for iOS, "a" for Android
 npm run ios        # iOS simulator (requires full Xcode)
 npm run android    # Android emulator
 ```
+
+The scanner (camera → OCR) needs an OpenAI API key in `.env` — see `.env.example`. Without
+one, scanning shows a clear error and falls back to manual entry; nothing else in the app
+depends on it. Env vars are read at Metro startup, so restart `expo start` after editing `.env`.
 
 ## Checks
 
@@ -41,11 +46,12 @@ src/
 │   │   ├── manual.tsx    # Manual entry + edit form
 │   │   └── [id].tsx      # Medicine details
 │   ├── today.tsx         # Today's dose checklist (Phase 1D)
-│   └── scanner/          # (not yet built)
+│   └── scanner/
+│       └── index.tsx     # Camera → OCR → hands off to medicines/manual
 │
 ├── features/
 │   ├── medicines/        # components, screens, hooks, services, store, types, utils
-│   ├── scanner/          # (not yet built)
+│   ├── scanner/          # types, services (OCRService + OpenAI impl), utils
 │   ├── notifications/    # (Phase 1E)
 │   └── settings/
 │
@@ -83,7 +89,7 @@ functions, never in components.
 - **1B — Medicine management** ✅ SQLite, repository, store, CRUD
 - **1C — Dosage engine** ✅ consumption, finish date, remaining quantity, status
 - **1D — Dosage consumption** ✅ today's checklist, confirm/undo, missed-dose flag
-- **Scanner**: camera, OCR abstraction, extraction, confirmation
+- **Scanner** ✅ camera, OCR abstraction, OpenAI vision extraction, confirmation
 - **1E — Notifications**: permissions, finish/expiry reminders, rescheduling
 - **1F — Polish**: states, accessibility, icon, splash, production builds
 - **Phase 2**: backend, auth, cloud sync, WhatsApp

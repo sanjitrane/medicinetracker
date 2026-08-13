@@ -8,6 +8,14 @@ import type { DosageSchedule, Dose, Medicine, QuantityUnit } from '../types/medi
 const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 const ISO_MONTH_OR_DATE = /^\d{4}-\d{2}(-\d{2})?$/;
 
+/**
+ * The subset of form fields a scan can pre-fill (architecture.md #17) — kept
+ * here rather than in the scanner feature so `MedicineForm` never has to
+ * depend on `features/scanner`; the scanner depends on medicines, not the
+ * other way round.
+ */
+export type UncertainFormField = 'name' | 'manufacturingDate' | 'expiryDate';
+
 function isPositiveNumber(raw: string): boolean {
   const value = Number(raw);
   return raw.trim() !== '' && !Number.isNaN(value) && value > 0;
