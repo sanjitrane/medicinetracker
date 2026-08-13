@@ -1,11 +1,11 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useEffect } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Alert, Linking, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Screen } from '@/components/Screen';
-import { colors, spacing, typography } from '@/constants/theme';
+import { colors, radius, spacing, typography } from '@/constants/theme';
 import { StatusBadge } from '@/features/medicines/components/StatusBadge';
 import { useMedicineStore } from '@/features/medicines/store/medicineStore';
 import type { Dose } from '@/features/medicines/types/medicine';
@@ -14,6 +14,7 @@ import {
   calculateRemainingQuantity,
   getMedicineStatus,
 } from '@/features/medicines/utils/medicineCalculator';
+import { getNotificationPermissionGranted } from '@/features/notifications/services/notificationScheduler';
 
 function formatDose(dose?: Dose): string {
   return dose ? `${dose.quantity} ${dose.unit}` : '—';
@@ -33,11 +34,17 @@ export default function MedicineDetailsScreen() {
   const deleteMedicine = useMedicineStore((state) => state.deleteMedicine);
   const medicine = useMedicineStore((state) => state.medicines.find((item) => item.id === id));
 
+  const [notificationsGranted, setNotificationsGranted] = useState(true);
+
   useEffect(() => {
     if (!hasLoaded) {
       load();
     }
   }, [hasLoaded, load]);
+
+  useEffect(() => {
+    getNotificationPermissionGranted().then(setNotificationsGranted);
+  }, []);
 
   const handleDelete = () => {
     Alert.alert(
@@ -76,6 +83,10 @@ export default function MedicineDetailsScreen() {
   const status = getMedicineStatus(medicine);
   const remaining = calculateRemainingQuantity(medicine);
   const finishDate = calculateMedicineFinishDate(medicine);
+  const hasAnyReminderEnabled =
+    medicine.notificationSettings.finishMedicine.enabled ||
+    medicine.notificationSettings.expiryMedicine.enabled;
+  const showNotificationsOffNotice = hasAnyReminderEnabled && !notificationsGranted;
 
   return (
     <Screen scrollable>
@@ -135,6 +146,20 @@ export default function MedicineDetailsScreen() {
               : 'Off'
           }
         />
+
+        {showNotificationsOffNotice ? (
+          <View style={styles.notice}>
+            <Text style={styles.noticeText}>
+              Notifications are turned off for Medicine Tracker, so these reminders won&apos;t
+              fire. Enable them in Settings to get notified.
+            </Text>
+            <Button
+              label="Open Settings"
+              variant="secondary"
+              onPress={() => Linking.openSettings()}
+            />
+          </View>
+        ) : null}
       </Card>
 
       <View style={styles.actions}>
@@ -163,6 +188,17 @@ const styles = StyleSheet.create({
   section: {
     gap: spacing.sm,
     marginBottom: spacing.lg,
+  },
+  notice: {
+    gap: spacing.sm,
+    marginTop: spacing.xs,
+    padding: spacing.md,
+    borderRadius: radius.md,
+    backgroundColor: colors.statusExpiringSoonBg,
+  },
+  noticeText: {
+    ...typography.caption,
+    color: colors.statusExpiringSoon,
   },
   title: {
     ...typography.heading,

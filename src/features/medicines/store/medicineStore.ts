@@ -1,5 +1,10 @@
 import { create } from 'zustand';
 
+import {
+  cancelMedicineNotifications,
+  syncMedicineNotifications,
+} from '@/features/notifications/services/notificationScheduler';
+
 import { medicineRepository } from '../services/medicineRepository';
 import type { Medicine } from '../types/medicine';
 import { generateId } from '../utils/id';
@@ -41,6 +46,7 @@ export const useMedicineStore = create<MedicineStoreState>((set, get) => ({
 
     await medicineRepository.create(medicine);
     set((state) => ({ medicines: [medicine, ...state.medicines] }));
+    await syncMedicineNotifications(medicine);
     return medicine;
   },
 
@@ -62,6 +68,7 @@ export const useMedicineStore = create<MedicineStoreState>((set, get) => ({
     set((state) => ({
       medicines: state.medicines.map((medicine) => (medicine.id === id ? updated : medicine)),
     }));
+    await syncMedicineNotifications(updated);
     return updated;
   },
 
@@ -70,6 +77,7 @@ export const useMedicineStore = create<MedicineStoreState>((set, get) => ({
     set((state) => ({
       medicines: state.medicines.filter((medicine) => medicine.id !== id),
     }));
+    await cancelMedicineNotifications(id);
   },
 
   getMedicine(id) {

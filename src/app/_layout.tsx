@@ -1,10 +1,18 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { colors, typography } from '@/constants/theme';
+import { configureNotifications } from '@/features/notifications/services/notificationScheduler';
 
 export default function RootLayout() {
+  useEffect(() => {
+    // Safe at launch (architecture.md #36) — sets presentation behaviour
+    // only, never prompts for permission.
+    configureNotifications();
+  }, []);
+
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />

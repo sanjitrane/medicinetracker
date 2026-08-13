@@ -52,7 +52,7 @@ src/
 ├── features/
 │   ├── medicines/        # components, screens, hooks, services, store, types, utils
 │   ├── scanner/          # types, services (OCRService + OpenAI impl), utils
-│   ├── notifications/    # (Phase 1E)
+│   ├── notifications/    # planner (pure) + scheduler (expo-notifications I/O)
 │   └── settings/
 │
 ├── components/           # Shared UI: Button, Card, Input, Screen, EmptyState
@@ -90,7 +90,7 @@ functions, never in components.
 - **1C — Dosage engine** ✅ consumption, finish date, remaining quantity, status
 - **1D — Dosage consumption** ✅ today's checklist, confirm/undo, missed-dose flag
 - **Scanner** ✅ camera, OCR abstraction, OpenAI vision extraction, confirmation
-- **1E — Notifications**: permissions, finish/expiry reminders, rescheduling
+- **1E — Notifications** ✅ permissions, finish/expiry reminders, rescheduling, dedup
 - **1F — Polish**: states, accessibility, icon, splash, production builds
 - **Phase 2**: backend, auth, cloud sync, WhatsApp
 
