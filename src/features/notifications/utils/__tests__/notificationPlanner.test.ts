@@ -5,9 +5,12 @@ import {
 } from '../notificationPlanner';
 import type { Medicine } from '../../../medicines/types/medicine';
 
+const PATIENT_NAME = 'Father';
+
 function buildMedicine(overrides: Partial<Medicine> = {}): Medicine {
   return {
     id: 'm1',
+    patientId: 'p1',
     name: 'Paracetamol',
     type: 'tablet',
     startDate: '2026-08-01',
@@ -49,12 +52,20 @@ describe('computeNotificationPlan', () => {
   it('plans a finishing notification 3 days before the estimated finish date', () => {
     // 30 @ 1/day from 1 Aug finishes 30 Aug; 3 days before = 27 Aug, 9am.
     const medicine = buildMedicine();
-    const plan = computeNotificationPlan(medicine, asOf('2026-08-01'));
+    const plan = computeNotificationPlan(medicine, PATIENT_NAME, asOf('2026-08-01'));
 
     const finishing = plan.find((item) => item.type === 'MEDICINE_FINISHING');
     expect(finishing).toBeDefined();
     expect(finishing?.triggerDate).toEqual(new Date(2026, 7, 27, 9, 0, 0));
     expect(finishing?.identifier).toBe('medicine-m1-finishing');
+  });
+
+  it('includes the patient name in the notification title, for households tracking more than one patient', () => {
+    const medicine = buildMedicine();
+    const plan = computeNotificationPlan(medicine, PATIENT_NAME, asOf('2026-08-01'));
+
+    const finishing = plan.find((item) => item.type === 'MEDICINE_FINISHING');
+    expect(finishing?.title).toBe('Father: Paracetamol is running low');
   });
 
   it('omits the finishing notification when that reminder is disabled', () => {
@@ -64,19 +75,19 @@ describe('computeNotificationPlan', () => {
         expiryMedicine: { enabled: true, daysBefore: 7, channels: ['push'] },
       },
     });
-    const plan = computeNotificationPlan(medicine, asOf('2026-08-01'));
+    const plan = computeNotificationPlan(medicine, PATIENT_NAME, asOf('2026-08-01'));
     expect(plan.some((item) => item.type === 'MEDICINE_FINISHING')).toBe(false);
   });
 
   it('omits the finishing notification when there is no dosage to project a finish date from (invalid dosage)', () => {
     const medicine = buildMedicine({ dosage: undefined });
-    const plan = computeNotificationPlan(medicine, asOf('2026-08-01'));
+    const plan = computeNotificationPlan(medicine, PATIENT_NAME, asOf('2026-08-01'));
     expect(plan.some((item) => item.type === 'MEDICINE_FINISHING')).toBe(false);
   });
 
   it('plans an expiry notification 7 days before the expiry date', () => {
     const medicine = buildMedicine({ expiryDate: '2026-09-30' });
-    const plan = computeNotificationPlan(medicine, asOf('2026-08-01'));
+    const plan = computeNotificationPlan(medicine, PATIENT_NAME, asOf('2026-08-01'));
 
     const expiring = plan.find((item) => item.type === 'MEDICINE_EXPIRING');
     expect(expiring).toBeDefined();
@@ -86,7 +97,7 @@ describe('computeNotificationPlan', () => {
   it('normalizes a month-only expiry date before computing the notification date', () => {
     // "2026-09" -> last day 2026-09-30 -> 7 days before -> 2026-09-23.
     const medicine = buildMedicine({ expiryDate: '2026-09' });
-    const plan = computeNotificationPlan(medicine, asOf('2026-08-01'));
+    const plan = computeNotificationPlan(medicine, PATIENT_NAME, asOf('2026-08-01'));
 
     const expiring = plan.find((item) => item.type === 'MEDICINE_EXPIRING');
     expect(expiring?.triggerDate).toEqual(new Date(2026, 8, 23, 9, 0, 0));
@@ -94,7 +105,7 @@ describe('computeNotificationPlan', () => {
 
   it('omits the expiry notification when there is no expiry date (missing expiry date)', () => {
     const medicine = buildMedicine({ expiryDate: undefined });
-    const plan = computeNotificationPlan(medicine, asOf('2026-08-01'));
+    const plan = computeNotificationPlan(medicine, PATIENT_NAME, asOf('2026-08-01'));
     expect(plan.some((item) => item.type === 'MEDICINE_EXPIRING')).toBe(false);
   });
 
@@ -106,33 +117,33 @@ describe('computeNotificationPlan', () => {
         expiryMedicine: { enabled: false, daysBefore: 7, channels: ['push'] },
       },
     });
-    const plan = computeNotificationPlan(medicine, asOf('2026-08-01'));
+    const plan = computeNotificationPlan(medicine, PATIENT_NAME, asOf('2026-08-01'));
     expect(plan.some((item) => item.type === 'MEDICINE_EXPIRING')).toBe(false);
   });
 
   it('plans both notifications together when both reminders apply', () => {
     const medicine = buildMedicine({ expiryDate: '2026-09-30' });
-    const plan = computeNotificationPlan(medicine, asOf('2026-08-01'));
+    const plan = computeNotificationPlan(medicine, PATIENT_NAME, asOf('2026-08-01'));
     expect(plan.map((item) => item.type).sort()).toEqual(['MEDICINE_EXPIRING', 'MEDICINE_FINISHING']);
   });
 
   it('excludes a notification whose date has already passed (notification date in the past)', () => {
     // Finishes 30 Aug, notify 3 days before = 27 Aug — but "now" is 28 Aug.
     const medicine = buildMedicine();
-    const plan = computeNotificationPlan(medicine, asOf('2026-08-28'));
+    const plan = computeNotificationPlan(medicine, PATIENT_NAME, asOf('2026-08-28'));
     expect(plan.some((item) => item.type === 'MEDICINE_FINISHING')).toBe(false);
   });
 
   it('excludes a notification for later today once its 9am trigger has already passed', () => {
     const medicine = buildMedicine();
     // Trigger is 27 Aug 09:00; "now" is 27 Aug 10:00.
-    const plan = computeNotificationPlan(medicine, asOf('2026-08-27', 10));
+    const plan = computeNotificationPlan(medicine, PATIENT_NAME, asOf('2026-08-27', 10));
     expect(plan.some((item) => item.type === 'MEDICINE_FINISHING')).toBe(false);
   });
 
   it('includes a notification for later today when its 9am trigger has not passed yet', () => {
     const medicine = buildMedicine();
-    const plan = computeNotificationPlan(medicine, asOf('2026-08-27', 7));
+    const plan = computeNotificationPlan(medicine, PATIENT_NAME, asOf('2026-08-27', 7));
     expect(plan.some((item) => item.type === 'MEDICINE_FINISHING')).toBe(true);
   });
 
@@ -144,6 +155,6 @@ describe('computeNotificationPlan', () => {
         expiryMedicine: { enabled: false, daysBefore: 7, channels: ['push'] },
       },
     });
-    expect(computeNotificationPlan(medicine, asOf('2026-08-01'))).toEqual([]);
+    expect(computeNotificationPlan(medicine, PATIENT_NAME, asOf('2026-08-01'))).toEqual([]);
   });
 });

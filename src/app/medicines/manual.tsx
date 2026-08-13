@@ -5,13 +5,14 @@ import { StyleSheet, Text } from 'react-native';
 import { Screen } from '@/components/Screen';
 import { colors, spacing, typography } from '@/constants/theme';
 import { MedicineForm } from '@/features/medicines/components/MedicineForm';
-import { useMedicineStore } from '@/features/medicines/store/medicineStore';
+import { useMedicineStore, type MedicineInput } from '@/features/medicines/store/medicineStore';
 import {
   formValuesToMedicineInput,
   medicineToFormValues,
   type MedicineFormValues,
   type UncertainFormField,
 } from '@/features/medicines/utils/medicineForm';
+import { usePatientStore } from '@/features/patients/store/patientStore';
 import type { MedicineScanResult } from '@/features/scanner/types/scan';
 import { scanResultToFormValues } from '@/features/scanner/utils/scanResultToFormValues';
 
@@ -27,19 +28,22 @@ export default function ManualEntryScreen() {
   const { id, scan } = useLocalSearchParams<{ id?: string; scan?: string }>();
   const isEditing = Boolean(id);
 
-  const hasLoaded = useMedicineStore((state) => state.hasLoaded);
+  const selectedPatientId = usePatientStore((state) => state.selectedPatientId);
+
+  const loadedForPatientId = useMedicineStore((state) => state.loadedForPatientId);
   const load = useMedicineStore((state) => state.load);
   const addMedicine = useMedicineStore((state) => state.addMedicine);
   const updateMedicine = useMedicineStore((state) => state.updateMedicine);
   const existing = useMedicineStore((state) =>
     id ? state.medicines.find((medicine) => medicine.id === id) : undefined
   );
+  const hasLoaded = loadedForPatientId === selectedPatientId;
 
   useEffect(() => {
-    if (!hasLoaded) {
-      load();
+    if (!hasLoaded && selectedPatientId) {
+      load(selectedPatientId);
     }
-  }, [hasLoaded, load]);
+  }, [hasLoaded, selectedPatientId, load]);
 
   const scanResult = useMemo<MedicineScanResult | undefined>(() => {
     if (!scan) return undefined;
@@ -81,7 +85,15 @@ export default function ManualEntryScreen() {
   }
 
   const handleSubmit = async (values: MedicineFormValues) => {
-    const input = formValuesToMedicineInput(values);
+    // A medicine keeps its patient across edits; a new one gets whichever
+    // patient is currently selected (architecture.md #32: patient is the
+    // parent entity — every medicine belongs to exactly one).
+    const patientId = isEditing && existing ? existing.patientId : selectedPatientId;
+    if (!patientId) {
+      throw new Error('No patient selected');
+    }
+
+    const input: MedicineInput = { ...formValuesToMedicineInput(values), patientId };
     const medicine =
       isEditing && id ? await updateMedicine(id, input) : await addMedicine(input);
     router.replace({ pathname: '/medicines/[id]', params: { id: medicine.id } });

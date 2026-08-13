@@ -6,17 +6,22 @@ import type { DosageSchedule, Medicine, NotificationSettings } from '../types/me
  * Repository pattern (architecture.md #27): the store talks to this, never to
  * SQLite directly, so Phase 2 can swap in a remote-backed implementation of
  * the same interface without touching the store or UI.
+ *
+ * `findAllByPatientId` rather than `findAll` (phase2_architecture.md #13):
+ * "Home should never load medicines globally" — there is no unscoped query,
+ * so a screen can't accidentally show one patient's medicines under another.
  */
 export interface MedicineRepository {
   create(medicine: Medicine): Promise<void>;
   update(id: string, medicine: Medicine): Promise<void>;
   delete(id: string): Promise<void>;
   findById(id: string): Promise<Medicine | null>;
-  findAll(): Promise<Medicine[]>;
+  findAllByPatientId(patientId: string): Promise<Medicine[]>;
 }
 
 interface MedicineRow {
   id: string;
+  patientId: string;
   name: string;
   type: string;
   manufacturingDate: string | null;
@@ -36,6 +41,7 @@ interface MedicineRow {
 function rowToMedicine(row: MedicineRow): Medicine {
   return {
     id: row.id,
+    patientId: row.patientId,
     name: row.name,
     type: row.type as Medicine['type'],
     manufacturingDate: row.manufacturingDate ?? undefined,
@@ -54,7 +60,7 @@ function rowToMedicine(row: MedicineRow): Medicine {
 }
 
 const UPSERT_COLUMNS = `
-  id, name, type, manufacturingDate, expiryDate, startDate, quantity, quantityUnit,
+  id, patientId, name, type, manufacturingDate, expiryDate, startDate, quantity, quantityUnit,
   tabletsPerStrip, numberOfStrips, bottleQuantityMl, dosage, notificationSettings,
   createdAt, updatedAt
 `;
@@ -62,6 +68,7 @@ const UPSERT_COLUMNS = `
 function medicineToParams(medicine: Medicine) {
   return [
     medicine.id,
+    medicine.patientId,
     medicine.name,
     medicine.type,
     medicine.manufacturingDate ?? null,
@@ -83,7 +90,7 @@ export const medicineRepository: MedicineRepository = {
   async create(medicine) {
     const db = await getDatabase();
     await db.runAsync(
-      `INSERT INTO medicines (${UPSERT_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      `INSERT INTO medicines (${UPSERT_COLUMNS}) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       medicineToParams(medicine)
     );
   },
@@ -92,7 +99,7 @@ export const medicineRepository: MedicineRepository = {
     const db = await getDatabase();
     await db.runAsync(
       `UPDATE medicines SET
-        name = ?, type = ?, manufacturingDate = ?, expiryDate = ?, startDate = ?,
+        patientId = ?, name = ?, type = ?, manufacturingDate = ?, expiryDate = ?, startDate = ?,
         quantity = ?, quantityUnit = ?, tabletsPerStrip = ?, numberOfStrips = ?,
         bottleQuantityMl = ?, dosage = ?, notificationSettings = ?, createdAt = ?, updatedAt = ?
        WHERE id = ?;`,
@@ -113,10 +120,11 @@ export const medicineRepository: MedicineRepository = {
     return row ? rowToMedicine(row) : null;
   },
 
-  async findAll() {
+  async findAllByPatientId(patientId) {
     const db = await getDatabase();
     const rows = await db.getAllAsync<MedicineRow>(
-      'SELECT * FROM medicines ORDER BY createdAt DESC;'
+      'SELECT * FROM medicines WHERE patientId = ? ORDER BY createdAt DESC;',
+      [patientId]
     );
     return rows.map(rowToMedicine);
   },

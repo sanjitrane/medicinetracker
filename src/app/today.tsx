@@ -8,6 +8,7 @@ import { TodaysDoseItemCard } from '@/features/medicines/components/TodaysDoseIt
 import { useDoseConfirmationStore } from '@/features/medicines/store/doseConfirmationStore';
 import { useMedicineStore } from '@/features/medicines/store/medicineStore';
 import { buildTodaysDoseItems, DOSE_SLOT_ORDER, getSlotWindow } from '@/features/medicines/utils/doseSchedule';
+import { usePatientStore } from '@/features/patients/store/patientStore';
 import { today } from '@/utils/dateUtils';
 
 /**
@@ -20,9 +21,12 @@ import { today } from '@/utils/dateUtils';
 export default function TodaysDosesScreen() {
   const todayDate = today();
 
+  const selectedPatientId = usePatientStore((state) => state.selectedPatientId);
+
   const medicines = useMedicineStore((state) => state.medicines);
-  const medicinesLoaded = useMedicineStore((state) => state.hasLoaded);
+  const loadedForPatientId = useMedicineStore((state) => state.loadedForPatientId);
   const loadMedicines = useMedicineStore((state) => state.load);
+  const medicinesLoaded = loadedForPatientId === selectedPatientId;
 
   const confirmations = useDoseConfirmationStore((state) => state.confirmations);
   const confirmationsLoaded = useDoseConfirmationStore((state) => state.hasLoaded);
@@ -31,10 +35,10 @@ export default function TodaysDosesScreen() {
   const unconfirmDose = useDoseConfirmationStore((state) => state.unconfirmDose);
 
   useEffect(() => {
-    if (!medicinesLoaded) {
-      loadMedicines();
+    if (!medicinesLoaded && selectedPatientId) {
+      loadMedicines(selectedPatientId);
     }
-  }, [medicinesLoaded, loadMedicines]);
+  }, [medicinesLoaded, selectedPatientId, loadMedicines]);
 
   useEffect(() => {
     loadConfirmations(todayDate);

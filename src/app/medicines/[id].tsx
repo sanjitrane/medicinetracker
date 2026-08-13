@@ -15,6 +15,7 @@ import {
   getMedicineStatus,
 } from '@/features/medicines/utils/medicineCalculator';
 import { getNotificationPermissionGranted } from '@/features/notifications/services/notificationScheduler';
+import { usePatientStore } from '@/features/patients/store/patientStore';
 
 function formatDose(dose?: Dose): string {
   return dose ? `${dose.quantity} ${dose.unit}` : '—';
@@ -29,18 +30,21 @@ export default function MedicineDetailsScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
 
-  const hasLoaded = useMedicineStore((state) => state.hasLoaded);
+  const selectedPatientId = usePatientStore((state) => state.selectedPatientId);
+
+  const loadedForPatientId = useMedicineStore((state) => state.loadedForPatientId);
   const load = useMedicineStore((state) => state.load);
   const deleteMedicine = useMedicineStore((state) => state.deleteMedicine);
   const medicine = useMedicineStore((state) => state.medicines.find((item) => item.id === id));
+  const hasLoaded = loadedForPatientId === selectedPatientId;
 
   const [notificationsGranted, setNotificationsGranted] = useState(true);
 
   useEffect(() => {
-    if (!hasLoaded) {
-      load();
+    if (!hasLoaded && selectedPatientId) {
+      load(selectedPatientId);
     }
-  }, [hasLoaded, load]);
+  }, [hasLoaded, selectedPatientId, load]);
 
   useEffect(() => {
     getNotificationPermissionGranted().then(setNotificationsGranted);

@@ -154,6 +154,7 @@ describe('medicineToFormValues', () => {
   it('round-trips a stored medicine back into form strings', () => {
     const medicine: Medicine = {
       id: 'm1',
+      patientId: 'p1',
       name: 'Paracetamol',
       type: 'tablet',
       startDate: '2026-08-12',

@@ -1,8 +1,8 @@
 import { getDatabase } from '@/database/client';
+import { generateId } from '@/utils/id';
 
 import type { DoseConfirmation } from '../types/doseConfirmation';
 import type { DoseSlotKey } from '../types/medicine';
-import { generateId } from '../utils/id';
 
 export interface DoseConfirmationRepository {
   confirm(medicineId: string, date: string, slot: DoseSlotKey): Promise<DoseConfirmation>;

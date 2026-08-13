@@ -82,12 +82,12 @@ async function cancelAll(identifiers: string[]): Promise<void> {
  * ("cancelled and recreated"), and naturally idempotent, which is what rules
  * out duplicates.
  */
-export async function syncMedicineNotifications(medicine: Medicine): Promise<void> {
+export async function syncMedicineNotifications(medicine: Medicine, patientName: string): Promise<void> {
   try {
     configureNotifications();
     await cancelAll(allNotificationIdentifiers(medicine.id));
 
-    const plan = computeNotificationPlan(medicine);
+    const plan = computeNotificationPlan(medicine, patientName);
     if (plan.length === 0) return;
 
     const granted = await ensurePermission();

@@ -38,9 +38,15 @@ Feature-based. Business logic stays out of components so it can be tested on its
 ```
 src/
 ├── app/                  # Expo Router routes (file-based)
-│   ├── _layout.tsx       # Root Stack + SafeAreaProvider
+│   ├── _layout.tsx       # Root Stack + Stack.Protected auth guard
 │   ├── index.tsx         # Dashboard
 │   ├── +not-found.tsx
+│   ├── auth/
+│   │   ├── phone.tsx     # Phone number entry
+│   │   └── otp.tsx       # OTP verification (test code: 12345)
+│   ├── patients/
+│   │   ├── index.tsx     # Patient list / selection
+│   │   └── create.tsx    # Add/edit patient
 │   ├── medicines/
 │   │   ├── add.tsx       # Add medicine (scan / manual)
 │   │   ├── manual.tsx    # Manual entry + edit form
@@ -50,6 +56,8 @@ src/
 │       └── index.tsx     # Camera → OCR → hands off to medicines/manual
 │
 ├── features/
+│   ├── auth/             # AuthService (hardcoded OTP), auth store, phone validation
+│   ├── patients/         # types, repository, store, form
 │   ├── medicines/        # components, screens, hooks, services, store, types, utils
 │   ├── scanner/          # types, services (OCRService + OpenAI impl), utils
 │   ├── notifications/    # planner (pure) + scheduler (expo-notifications I/O)
@@ -82,6 +90,15 @@ functions, never in components.
 - **Derived state**: remaining quantity, finish date and status are computed, never
   persisted, so stored data cannot drift out of agreement with itself.
 - **Path alias**: `@/*` maps to `src/*`.
+- **Auth (Phase 2)**: sign in with any valid phone number; the OTP is always `12345`
+  (phase2_architecture.md #5 — hardcoded on purpose, behind `AuthService` so a real
+  provider can replace it later without touching any screen). Session lives in
+  SecureStore, restored on launch behind a splash screen; `Stack.Protected` in
+  `_layout.tsx` gates every route on it.
+- **Patients (Phase 2)**: every medicine belongs to exactly one patient (`patientId`);
+  no screen ever loads medicines unscoped. Medicines created before this phase have
+  `patientId = ''`, which matches no patient — they're preserved in SQLite but won't
+  appear under any patient until manually reassigned (no reassignment UI exists yet).
 
 ## Roadmap
 
@@ -92,7 +109,12 @@ functions, never in components.
 - **Scanner** ✅ camera, OCR abstraction, OpenAI vision extraction, confirmation
 - **1E — Notifications** ✅ permissions, finish/expiry reminders, rescheduling, dedup
 - **1F — Polish**: states, accessibility, icon, splash, production builds
-- **Phase 2**: backend, auth, cloud sync, WhatsApp
+- **Phase 2 — Auth & Patients** ✅ phone/OTP login (hardcoded test code), patient CRUD,
+  patient selection gate on Home
+- **Phase 2 — Patient-aware medicines** ✅ `patientId` on medicines (with a migration
+  for pre-Phase-2 installs), every screen loads/saves scoped to the selected patient,
+  push notifications include the patient's name
+- **Phase 3**: backend, real OTP provider, cloud sync, WhatsApp
 
 ## Scope
 

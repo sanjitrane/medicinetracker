@@ -60,6 +60,8 @@ export interface NotificationSettings {
 
 export interface Medicine {
   id: string;
+  /** phase2_architecture.md #32: "Patient becomes the parent entity for medicines." */
+  patientId: string;
   name: string;
   type: MedicineType;
 

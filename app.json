@@ -41,7 +41,9 @@
           "cameraPermission": "Medicine Tracker uses the camera to scan medicine packaging so you don't have to type everything in by hand."
         }
       ],
-      "expo-notifications"
+      "expo-notifications",
+      "expo-secure-store",
+      "expo-splash-screen"
     ],
     "experiments": {
       "typedRoutes": true

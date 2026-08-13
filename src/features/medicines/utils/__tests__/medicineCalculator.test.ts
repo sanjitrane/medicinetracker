@@ -12,6 +12,7 @@ import type { DosageSchedule, Medicine } from '../../types/medicine';
 function buildMedicine(overrides: Partial<Medicine> = {}): Medicine {
   return {
     id: 'm1',
+    patientId: 'p1',
     name: 'Paracetamol',
     type: 'tablet',
     startDate: '2026-08-12',

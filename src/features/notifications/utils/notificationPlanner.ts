@@ -40,9 +40,15 @@ function atNotificationTime(dateStr: string): Date {
  * Pure function of the medicine and "now", so every rule (toggle off,
  * missing expiry, an already-past trigger) is independently testable
  * (architecture.md #40 #11) without a device or the notifications API.
+ *
+ * `patientName` is required, not looked up here — phase2_architecture.md
+ * #14: "A notification should contain enough information to identify the
+ * patient", but resolving a name from a patientId is store/repository
+ * territory, which this pure function deliberately stays free of.
  */
 export function computeNotificationPlan(
   medicine: Medicine,
+  patientName: string,
   now: Date = new Date()
 ): PlannedNotification[] {
   const plan: PlannedNotification[] = [];
@@ -60,8 +66,8 @@ export function computeNotificationPlan(
           medicineId: medicine.id,
           type: 'MEDICINE_FINISHING',
           triggerDate,
-          title: `${medicine.name} is running low`,
-          body: `Based on your dosage, this is expected to run out around ${finishDate}.`,
+          title: `${patientName}: ${medicine.name} is running low`,
+          body: `Based on the dosage, this is expected to run out around ${finishDate}.`,
         });
       }
     }
@@ -77,7 +83,7 @@ export function computeNotificationPlan(
         medicineId: medicine.id,
         type: 'MEDICINE_EXPIRING',
         triggerDate,
-        title: `${medicine.name} is expiring soon`,
+        title: `${patientName}: ${medicine.name} is expiring soon`,
         body: `This expires on ${expiry}.`,
       });
     }

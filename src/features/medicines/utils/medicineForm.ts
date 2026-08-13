@@ -136,7 +136,14 @@ function buildDose(raw: string, unit: QuantityUnit): Dose | undefined {
   return raw.trim() !== '' && quantity > 0 ? { quantity, unit } : undefined;
 }
 
-export function formValuesToMedicineInput(values: MedicineFormValues): MedicineInput {
+/**
+ * Deliberately does not produce `patientId` — the form never collects it.
+ * The caller (the manual-entry screen) fills it in from whichever patient
+ * is selected, or from the medicine being edited, before saving.
+ */
+export function formValuesToMedicineInput(
+  values: MedicineFormValues
+): Omit<MedicineInput, 'patientId'> {
   const quantityUnit: QuantityUnit = values.type === 'tablet' ? 'tablet' : 'ml';
 
   const quantity =
