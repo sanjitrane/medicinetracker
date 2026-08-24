@@ -8,6 +8,18 @@ import type { AuthSession } from '../types/auth';
 
 const SESSION_KEY = 'auth.session';
 
+/**
+ * Dev convenience: skip the phone/OTP screens and auto-sign in on launch,
+ * requested for now while iterating on other features. Goes through
+ * `hardcodedAuthService.verifyOtp()` — the same path a real login uses — so
+ * a stable userId still gets created, patients/medicines still scope
+ * correctly, and flipping this back to `false` restores the normal flow
+ * with no other changes needed. `__DEV__` is a safety net so this can never
+ * ship in a production build even if left on by accident.
+ */
+const SKIP_AUTH_FOR_DEV = __DEV__ && true;
+const DEV_PHONE_NUMBER = '+10000000001';
+
 async function readSession(): Promise<AuthSession | null> {
   const raw = await SecureStore.getItemAsync(SESSION_KEY);
   if (!raw) return null;
@@ -52,12 +64,29 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
 
   async restoreSession() {
     const session = await readSession();
-    set({
-      isAuthenticated: session !== null,
-      phoneNumber: session?.phoneNumber ?? null,
-      userId: session?.userId ?? null,
-      isRestoring: false,
-    });
+    if (session) {
+      set({
+        isAuthenticated: true,
+        phoneNumber: session.phoneNumber,
+        userId: session.userId,
+        isRestoring: false,
+      });
+      return;
+    }
+
+    if (SKIP_AUTH_FOR_DEV) {
+      const devSession = await hardcodedAuthService.verifyOtp(DEV_PHONE_NUMBER, '12345');
+      await SecureStore.setItemAsync(SESSION_KEY, JSON.stringify(devSession));
+      set({
+        isAuthenticated: true,
+        phoneNumber: devSession.phoneNumber,
+        userId: devSession.userId,
+        isRestoring: false,
+      });
+      return;
+    }
+
+    set({ isAuthenticated: false, phoneNumber: null, userId: null, isRestoring: false });
   },
 
   async requestOtp(phoneNumber) {

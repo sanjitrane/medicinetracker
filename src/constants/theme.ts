@@ -3,45 +3,55 @@
  *
  * Everything visual should reference these rather than hard-coded values so the
  * look stays consistent and a dark theme can be layered on later.
+ *
+ * Palette: a dusty blue as the brand color (calm, health-associated) with a
+ * dark navy accent reserved for a handful of special moments (the scan/AI
+ * action, standout badges) so it still reads as an accent rather than a
+ * second primary color. Status colors stay on the warm spectrum
+ * (green/amber/orange/red) precisely so they never get confused with brand
+ * color — nothing decorative borrows those hues.
  */
 
 export const colors = {
-  // Surfaces
-  background: '#F7FAFC',
+  // Surfaces — a faint blue tint instead of neutral gray, so even empty
+  // space carries a little of the brand color.
+  background: '#F1F7FA',
   surface: '#FFFFFF',
-  surfaceMuted: '#EDF2F7',
+  surfaceMuted: '#E6F1F5',
 
   // Brand
-  primary: '#2B6CB0',
-  primaryDark: '#2C5282',
-  primaryMuted: '#EBF4FF',
+  primary: '#78AAC3',
+  primaryDark: '#4E7E98',
+  primaryMuted: '#DCEBF1',
+  accent: '#393B63',
+  accentMuted: '#E4E4ED',
 
   // Text
-  text: '#1A202C',
-  textSecondary: '#4A5568',
-  textMuted: '#718096',
+  text: '#0F172A',
+  textSecondary: '#475569',
+  textMuted: '#94A3B8',
   textInverse: '#FFFFFF',
 
   // Lines
-  border: '#E2E8F0',
+  border: '#D3E3EA',
 
   // Medicine status. Kept in one place so the dashboard, details screen and
   // badges can never disagree about what "finishing soon" looks like.
-  statusActive: '#38A169',
-  statusActiveBg: '#F0FFF4',
-  statusFinishingSoon: '#D69E2E',
-  statusFinishingSoonBg: '#FFFFF0',
-  statusFinished: '#718096',
-  statusFinishedBg: '#F7FAFC',
-  statusExpiringSoon: '#DD6B20',
-  statusExpiringSoonBg: '#FFFAF0',
-  statusExpired: '#E53E3E',
-  statusExpiredBg: '#FFF5F5',
+  statusActive: '#16A34A',
+  statusActiveBg: '#DCFCE7',
+  statusFinishingSoon: '#D97706',
+  statusFinishingSoonBg: '#FEF3C7',
+  statusFinished: '#64748B',
+  statusFinishedBg: '#F1F5F9',
+  statusExpiringSoon: '#EA580C',
+  statusExpiringSoonBg: '#FFEDD5',
+  statusExpired: '#DC2626',
+  statusExpiredBg: '#FEE2E2',
 
   // Feedback
-  danger: '#E53E3E',
-  warning: '#D69E2E',
-  success: '#38A169',
+  danger: '#DC2626',
+  warning: '#D97706',
+  success: '#16A34A',
 } as const;
 
 export const spacing = {
@@ -54,10 +64,32 @@ export const spacing = {
 } as const;
 
 export const radius = {
-  sm: 6,
-  md: 10,
-  lg: 16,
+  sm: 8,
+  md: 12,
+  lg: 20,
   pill: 999,
+} as const;
+
+/**
+ * Elevation presets. `card` is a soft lift for surfaces sitting on the
+ * screen background; `raised` is a touch stronger, for things that should
+ * read as the most prominent element on screen (e.g. a hero banner).
+ */
+export const shadow = {
+  card: {
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  raised: {
+    shadowColor: '#0F172A',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 4,
+  },
 } as const;
 
 /**
@@ -75,4 +107,4 @@ export const typography = {
   caption: { fontSize: 13, fontWeight: '400' as const, lineHeight: 18 },
 } as const;
 
-export const theme = { colors, spacing, radius, typography } as const;
+export const theme = { colors, spacing, radius, shadow, typography } as const;

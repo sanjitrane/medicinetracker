@@ -32,7 +32,7 @@ export default function AddMedicineScreen() {
           </Text>
           <Button
             label="Scan Medicine"
-            variant="primary"
+            variant="accent"
             onPress={() => router.push('/scanner')}
             style={styles.optionAction}
           />

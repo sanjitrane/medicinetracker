@@ -1,0 +1,1 @@
+export { BrandWatermark } from './BrandWatermark';

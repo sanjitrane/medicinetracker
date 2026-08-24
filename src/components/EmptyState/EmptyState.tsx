@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/Button';
-import { colors, spacing, typography } from '@/constants/theme';
+import { colors, radius, spacing, typography } from '@/constants/theme';
 
 export interface EmptyStateProps {
   icon?: string;
@@ -20,9 +20,11 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <View style={styles.container}>
-      <Text style={styles.icon} accessibilityElementsHidden importantForAccessibility="no">
-        {icon}
-      </Text>
+      <View style={styles.iconBadge}>
+        <Text style={styles.icon} accessibilityElementsHidden importantForAccessibility="no">
+          {icon}
+        </Text>
+      </View>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.message}>{message}</Text>
       {actionLabel && onAction ? (
@@ -39,9 +41,17 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.xxl,
     paddingHorizontal: spacing.lg,
   },
+  iconBadge: {
+    width: 88,
+    height: 88,
+    borderRadius: radius.pill,
+    backgroundColor: colors.primaryMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.lg,
+  },
   icon: {
-    fontSize: 48,
-    marginBottom: spacing.md,
+    fontSize: 40,
   },
   title: {
     ...typography.heading,

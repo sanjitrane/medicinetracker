@@ -17,7 +17,7 @@
     "android": {
       "package": "com.sanjit.medicinetracker",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#78AAC3",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
@@ -43,7 +43,15 @@
       ],
       "expo-notifications",
       "expo-secure-store",
-      "expo-splash-screen"
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#DCEBF1",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 220,
+          "resizeMode": "contain"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

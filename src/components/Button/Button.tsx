@@ -3,7 +3,7 @@ import type { StyleProp, ViewStyle } from 'react-native';
 
 import { colors, MIN_TOUCH_TARGET, radius, spacing, typography } from '@/constants/theme';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'accent';
 
 export interface ButtonProps {
   label: string;
@@ -47,7 +47,11 @@ export function Button({
     >
       {loading ? (
         <ActivityIndicator
-          color={variant === 'primary' || variant === 'danger' ? colors.textInverse : colors.primary}
+          color={
+            variant === 'primary' || variant === 'danger' || variant === 'accent'
+              ? colors.textInverse
+              : colors.primary
+          }
         />
       ) : (
         <View style={styles.content}>
@@ -110,6 +114,10 @@ const variantStyles: Record<
   },
   danger: {
     container: { backgroundColor: colors.danger },
+    label: { color: colors.textInverse },
+  },
+  accent: {
+    container: { backgroundColor: colors.accent },
     label: { color: colors.textInverse },
   },
 };

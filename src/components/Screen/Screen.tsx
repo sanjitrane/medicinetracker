@@ -2,6 +2,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { BrandWatermark } from '@/components/BrandWatermark';
 import { colors, spacing } from '@/constants/theme';
 
 export interface ScreenProps {
@@ -28,25 +29,28 @@ export function Screen({
 
   if (scrollable) {
     return (
-      <ScrollView
-        style={styles.root}
-        contentContainerStyle={[
-          styles.content,
-          { paddingBottom: bottomPadding },
-          contentContainerStyle,
-        ]}
-        keyboardShouldPersistTaps="handled"
-      >
-        {children}
-      </ScrollView>
+      <View style={styles.root}>
+        <BrandWatermark />
+        <ScrollView
+          contentContainerStyle={[
+            styles.content,
+            { paddingBottom: bottomPadding },
+            contentContainerStyle,
+          ]}
+          keyboardShouldPersistTaps="handled"
+        >
+          {children}
+        </ScrollView>
+      </View>
     );
   }
 
   return (
-    <View
-      style={[styles.root, styles.content, { paddingBottom: bottomPadding }, contentContainerStyle]}
-    >
-      {children}
+    <View style={styles.root}>
+      <BrandWatermark />
+      <View style={[styles.content, { paddingBottom: bottomPadding }, contentContainerStyle]}>
+        {children}
+      </View>
     </View>
   );
 }

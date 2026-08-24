@@ -2,9 +2,10 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { colors, typography } from '@/constants/theme';
+import { colors, spacing, typography } from '@/constants/theme';
 import { useAuthStore } from '@/features/auth/store/authStore';
 import { configureNotifications } from '@/features/notifications/services/notificationScheduler';
 
@@ -12,6 +13,15 @@ import { configureNotifications } from '@/features/notifications/services/notifi
 // otherwise there's a one-frame flash of the auth screens (or the app)
 // before Stack.Protected knows which one is actually correct.
 SplashScreen.preventAutoHideAsync().catch(() => undefined);
+
+function DashboardTitle() {
+  return (
+    <View style={headerStyles.row}>
+      <Image source={require('../../assets/icon.png')} style={headerStyles.logo} />
+      <Text style={headerStyles.title}>Medicine Tracker</Text>
+    </View>
+  );
+}
 
 export default function RootLayout() {
   const isRestoring = useAuthStore((state) => state.isRestoring);
@@ -53,7 +63,11 @@ export default function RootLayout() {
           authenticated users can reach everything else.
         */}
         <Stack.Protected guard={isAuthenticated}>
-          <Stack.Screen name="index" options={{ title: 'Medicine Tracker' }} />
+          <Stack.Screen name="index" options={{ title: 'Medicine Tracker' }}>
+            <Stack.Title asChild>
+              <DashboardTitle />
+            </Stack.Title>
+          </Stack.Screen>
           <Stack.Screen name="today" options={{ title: "Today's Doses" }} />
           <Stack.Screen name="medicines/add" options={{ title: 'Add Medicine' }} />
           <Stack.Screen name="medicines/manual" options={{ title: 'Enter Manually' }} />
@@ -71,3 +85,20 @@ export default function RootLayout() {
     </SafeAreaProvider>
   );
 }
+
+const headerStyles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  logo: {
+    width: 26,
+    height: 26,
+    borderRadius: 7,
+  },
+  title: {
+    ...typography.subheading,
+    color: colors.text,
+  },
+});

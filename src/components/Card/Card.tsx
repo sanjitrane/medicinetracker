@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { StyleProp, ViewStyle } from 'react-native';
 
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, radius, shadow, spacing } from '@/constants/theme';
 
 export interface CardProps {
   children: React.ReactNode;
@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderWidth: 1,
     borderColor: colors.border,
+    ...shadow.card,
   },
   pressed: {
     opacity: 0.9,
