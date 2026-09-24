@@ -1,0 +1,14 @@
+Medicine Tracker helps you keep track of medicines for yourself and the people you care for — a parent, a child, or anyone else in your household.
+
+FEATURES
+
+• Multiple patients — add each person you're managing medicines for, with their own list.
+• Add medicines manually, or scan the packaging with your camera to auto-fill the name and dates.
+• Dosage schedules — set how much is taken, morning, afternoon and evening.
+• Today's Doses — a daily checklist so nothing gets missed, with a tap to mark a dose taken.
+• Dose Reminders — set an exact alarm time for each scheduled dose.
+• Refill and expiry reminders — a local notification before a medicine runs out or expires.
+
+Medicine Tracker works entirely on your device. Your medicine and patient information is stored locally and is not uploaded to any server. See the Privacy Policy for full details, including how the optional camera-scan feature works.
+
+This app is a personal organizer, not a medical device. It does not diagnose, prescribe, or give medical advice — always follow guidance from a licensed healthcare professional.

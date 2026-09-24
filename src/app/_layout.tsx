@@ -69,6 +69,7 @@ export default function RootLayout() {
             </Stack.Title>
           </Stack.Screen>
           <Stack.Screen name="today" options={{ title: "Today's Doses" }} />
+          <Stack.Screen name="reminders/index" options={{ title: 'Dose Reminders' }} />
           <Stack.Screen name="medicines/add" options={{ title: 'Add Medicine' }} />
           <Stack.Screen name="medicines/manual" options={{ title: 'Enter Manually' }} />
           <Stack.Screen name="medicines/[id]" options={{ title: 'Medicine Details' }} />

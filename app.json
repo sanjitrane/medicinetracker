@@ -24,8 +24,7 @@
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
-        "android.permission.CAMERA",
-        "android.permission.RECORD_AUDIO"
+        "android.permission.CAMERA"
       ]
     },
     "web": {
@@ -38,7 +37,8 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "Medicine Tracker uses the camera to scan medicine packaging so you don't have to type everything in by hand."
+          "cameraPermission": "Medicine Tracker uses the camera to scan medicine packaging so you don't have to type everything in by hand.",
+          "recordAudioAndroid": false
         }
       ],
       "expo-notifications",
@@ -51,7 +51,8 @@
           "imageWidth": 220,
           "resizeMode": "contain"
         }
-      ]
+      ],
+      "@react-native-community/datetimepicker"
     ],
     "experiments": {
       "typedRoutes": true

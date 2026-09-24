@@ -99,6 +99,7 @@ export default function DashboardScreen() {
 
   const goToAddMedicine = () => router.push('/medicines/add');
   const goToToday = () => router.push('/today');
+  const goToReminders = () => router.push('/reminders');
   const goToDetails = (id: string) =>
     router.push({ pathname: '/medicines/[id]', params: { id } });
   const goToPatients = () => router.push('/patients');
@@ -128,6 +129,11 @@ export default function DashboardScreen() {
       </Card>
 
       <TodaysDosesBanner items={todaysDoseItems} onPress={goToToday} />
+
+      <Card onPress={goToReminders} accessibilityLabel="Set Dose Reminders" style={styles.remindersBanner}>
+        <Text style={styles.remindersBannerTitle}>⏰ Set dose reminders</Text>
+        <Text style={styles.remindersBannerLink}>Schedule alarms →</Text>
+      </Card>
 
       {medicines.length === 0 ? (
         <EmptyState
@@ -237,6 +243,19 @@ const styles = StyleSheet.create({
     color: colors.text,
   },
   doseBannerLink: {
+    ...typography.caption,
+    color: colors.primary,
+    fontWeight: '600',
+  },
+  remindersBanner: {
+    marginBottom: spacing.lg,
+    gap: spacing.xs,
+  },
+  remindersBannerTitle: {
+    ...typography.subheading,
+    color: colors.text,
+  },
+  remindersBannerLink: {
     ...typography.caption,
     color: colors.primary,
     fontWeight: '600',

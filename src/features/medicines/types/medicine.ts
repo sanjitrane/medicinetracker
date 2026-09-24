@@ -27,6 +27,8 @@ export interface Dose {
   fraction?: DoseFraction;
   timing?: DoseTiming;
   meal?: Meal;
+  /** 24h "HH:mm" alarm time for this dose, set on the Dose Reminders screen. */
+  time?: string;
 }
 
 /**

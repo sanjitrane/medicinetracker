@@ -45,8 +45,11 @@ export async function getNotificationPermissionGranted(): Promise<boolean> {
  * architecture.md #36: ask with context before the bare OS dialog, and only
  * once per undetermined session — not on every save, and never once the
  * user has actually said no at the OS level (`canAskAgain` false).
+ *
+ * Exported so `doseReminderScheduler.ts` shares the same `askedThisSession`
+ * state rather than prompting the user twice in one session.
  */
-async function ensurePermission(): Promise<boolean> {
+export async function ensurePermission(): Promise<boolean> {
   const current = await Notifications.getPermissionsAsync();
   if (current.granted) return true;
   if (!current.canAskAgain || askedThisSession) return false;
@@ -69,7 +72,8 @@ async function ensurePermission(): Promise<boolean> {
   return result.granted;
 }
 
-async function cancelAll(identifiers: string[]): Promise<void> {
+/** Shared with `doseReminderScheduler.ts` — both follow the same "cancel and recreate" pattern. */
+export async function cancelScheduledIdentifiers(identifiers: string[]): Promise<void> {
   await Promise.all(
     identifiers.map((identifier) => Notifications.cancelScheduledNotificationAsync(identifier).catch(() => undefined))
   );
@@ -85,7 +89,7 @@ async function cancelAll(identifiers: string[]): Promise<void> {
 export async function syncMedicineNotifications(medicine: Medicine, patientName: string): Promise<void> {
   try {
     configureNotifications();
-    await cancelAll(allNotificationIdentifiers(medicine.id));
+    await cancelScheduledIdentifiers(allNotificationIdentifiers(medicine.id));
 
     const plan = computeNotificationPlan(medicine, patientName);
     if (plan.length === 0) return;
@@ -108,7 +112,7 @@ export async function syncMedicineNotifications(medicine: Medicine, patientName:
 
 export async function cancelMedicineNotifications(medicineId: string): Promise<void> {
   try {
-    await cancelAll(allNotificationIdentifiers(medicineId));
+    await cancelScheduledIdentifiers(allNotificationIdentifiers(medicineId));
   } catch {
     // Best-effort cleanup on delete; nothing to recover.
   }
